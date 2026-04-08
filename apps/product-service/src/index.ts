@@ -1,5 +1,7 @@
-import express from "express";
+import express, { Request, Response } from "express";
 import cors from "cors";
+import { clerkMiddleware, getAuth } from "@clerk/express";
+import { shouldBeUser } from "./middleware/authMiddleware.js";
 
 const app = express();
 app.use(express.json());
@@ -11,6 +13,21 @@ app.use(
   }),
 );
 
+app.use(clerkMiddleware());
+
+app.get("/test", shouldBeUser, (req: Request, res: Response) => {
+  return res.json({
+    message: "Product Service Authenticated",
+    userId: req.userId,
+  });
+});
+app.get("/health", (req: Request, res: Response) => {
+  return res.status(200).json({
+    status: "ok",
+    uptime: process.uptime(),
+    timestamp: Date.now(),
+  });
+});
 app.listen(8000, () => {
   console.log("Product Service is running on port 8000");
 });
