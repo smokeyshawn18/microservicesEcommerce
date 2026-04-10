@@ -1,15 +1,24 @@
-import express, { Request, Response } from "express";
+import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
-import { clerkMiddleware, getAuth } from "@clerk/express";
+import { clerkMiddleware } from "@clerk/express";
 import { shouldBeUser } from "./middleware/authMiddleware.js";
+import productRouter from "./routes/product.route";
+import categoryRouter from "./routes/category.route";
 
 const app = express();
-app.use(express.json());
+app.use(express.json()); // Middleware to parse JSON bodies
 
 app.use(
   cors({
-    origin: ["http://localhost:3002", "http://localhost:3003"],
+    origin: [
+      "http://localhost:3002",
+      "http://localhost:3003",
+      // "http://localhost",
+      // "http://127.0.0.1",
+    ],
     credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allowedHeaders: ["Content-Type", "Authorization"],
   }),
 );
 
@@ -28,6 +37,19 @@ app.get("/health", (req: Request, res: Response) => {
     timestamp: Date.now(),
   });
 });
+
+app.use("/products", productRouter);
+app.use("/categories", categoryRouter);
+
+app.use((err: any, req: Request, res: Response, next: NextFunction) => {
+  console.error(err);
+  res.status(err.status || 500).json({
+    error: {
+      message: err.message || "Internal Server Error",
+    },
+  });
+});
+
 app.listen(8000, () => {
   console.log("Product Service is running on port 8000");
 });

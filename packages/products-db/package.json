@@ -1,0 +1,22 @@
+{
+  "name": "@repo/products-db",
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "db:generate": "prisma generate",
+    "db:migrate": "prisma migrate dev --skip-generate",
+    "db:deploy": "prisma migrate deploy"
+  },
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^24.3.1",
+    "prisma": "^6.16.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^6.16.0",
+    "dotenv": "^17.4.1"
+  },
+  "exports": {
+    ".": "./stc/index.ts"
+  }
+}
