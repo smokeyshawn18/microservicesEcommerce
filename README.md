@@ -1,159 +1,148 @@
-# Turborepo starter
+# NepCart Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+Turborepo workspace for NepCart services and apps.
 
-## Using this example
+## Stack
 
-Run the following command:
+- Monorepo: Turborepo + pnpm workspaces
+- Frontend: Next.js (`apps/client`, `apps/admin`)
+- Services:
+  - `apps/product-service` (Express)
+  - `apps/order-service` (Fastify)
+  - `apps/payment-service` (Hono)
+- Shared packages:
+  - `packages/types`
+  - `packages/kafka`
+  - `packages/order-db`
+  - `packages/products-db` (Prisma)
 
-```sh
-npx create-turbo@latest
+## Prerequisites
+
+- Node.js 20 LTS (recommended)
+- Corepack enabled
+- pnpm 9
+
+Setup:
+
+```bash
+corepack enable
+corepack prepare pnpm@9.0.0 --activate
+node -v
+pnpm -v
 ```
 
-## What's inside?
+## Clone and install
 
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+```bash
+git clone <your-repo-url> nepcart
+cd nepcart
+pnpm install
 ```
 
-Without global `turbo`, use your package manager:
+## Environment setup
 
-```sh
-cd my-turborepo
-npx turbo build
-yarn dlx turbo build
-pnpm exec turbo build
+Create these files and fill values.
+
+### `apps/client/.env`
+
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
+NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
+NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
+NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
+NEXT_PUBLIC_PAYMENT_SERVICE_URL=http://localhost:8002
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### `apps/product-service/.env`
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo build --filter=docs
+```env
+CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+DATABASE_URL=
 ```
 
-Without global `turbo`:
+### `apps/order-service/.env`
 
-```sh
-npx turbo build --filter=docs
-yarn exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
+```env
+CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+MONGO_URL=
 ```
 
-### Develop
+### `apps/payment-service/.env`
 
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
+```env
+CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=
 ```
 
-Without global `turbo`, use your package manager:
+### `packages/products-db/.env`
 
-```sh
-cd my-turborepo
-npx turbo dev
-yarn exec turbo dev
-pnpm exec turbo dev
+```env
+DATABASE_URL=
 ```
 
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+## Database bootstrap
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+Run from repository root:
 
-```sh
-turbo dev --filter=web
+```bash
+pnpm --filter @repo/products-db db:generate
+pnpm --filter @repo/products-db db:migrate
 ```
 
-Without global `turbo`:
+If migration history already exists in the target DB:
 
-```sh
-npx turbo dev --filter=web
-yarn exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
+```bash
+pnpm --filter @repo/products-db db:deploy
 ```
 
-### Remote Caching
+## Start the workspace
 
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
+Run all dev tasks:
 
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
+```bash
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
+Expected ports:
 
-```sh
-cd my-turborepo
-npx turbo login
-yarn exec turbo login
-pnpm exec turbo login
+- Client: `3002`
+- Admin: `3003`
+- Product service: `8000`
+- Order service: `8001`
+- Payment service: `8002`
+
+## Health checks
+
+```bash
+curl http://localhost:8000/health
+curl http://localhost:8001/health
+curl http://localhost:8002/health
 ```
 
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
+Then open:
 
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
+- `http://localhost:3002`
+- `http://localhost:3003`
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+## Common issues
 
-```sh
-turbo link
+- Port in use: stop existing process using the same port.
+- Clerk auth failures: verify all Clerk keys in app and service `.env` files.
+- Client payment request fails: verify `NEXT_PUBLIC_PAYMENT_SERVICE_URL` in `apps/client/.env`.
+- Stripe webhook verification fails: verify `STRIPE_WEBHOOK_SECRET` in `apps/payment-service/.env`.
+- Prisma connection errors: verify `DATABASE_URL` in `packages/products-db/.env`.
+
+## Useful commands
+
+```bash
+pnpm dev
+pnpm build
+pnpm lint
+pnpm check-types
 ```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-yarn exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)

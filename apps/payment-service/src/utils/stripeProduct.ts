@@ -1,7 +1,9 @@
 import { StripeProductType } from "@repo/types";
 import stripe from "./stripe";
 
-export const createStripeProduct = async (item: StripeProductType) => {
+export const createStripeProduct = async (
+  item: StripeProductType,
+): Promise<unknown> => {
   try {
     const res = await stripe.products.create({
       id: item.id,
@@ -14,8 +16,8 @@ export const createStripeProduct = async (item: StripeProductType) => {
 
     return res;
   } catch (error) {
-    console.log(error);
-    return error;
+    console.error("createStripeProduct error:", error);
+    throw error;
   }
 };
 
@@ -24,19 +26,27 @@ export const getStripeProductPrice = async (productId: number) => {
     const res = await stripe.prices.list({
       product: productId.toString(),
     });
-    return res.data[0]?.unit_amount;
+
+    const unitAmount = res.data[0]?.unit_amount;
+    if (typeof unitAmount !== "number" || unitAmount <= 0) {
+      throw new Error(`No valid Stripe price found for product ${productId}`);
+    }
+
+    return unitAmount;
   } catch (error) {
-    console.log(error);
-    return error;
+    console.error("getStripeProductPrice error:", error);
+    throw error;
   }
 };
 
-export const deleteStripeProduct = async (productId: number) => {
+export const deleteStripeProduct = async (
+  productId: number,
+): Promise<unknown> => {
   try {
     const res = await stripe.products.del(productId.toString());
     return res;
   } catch (error) {
-    console.log(error);
-    return error;
+    console.error("deleteStripeProduct error:", error);
+    throw error;
   }
 };

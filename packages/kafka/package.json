@@ -1,0 +1,13 @@
+{
+  "name": "@repo/kafka",
+  "version": "1.0.0",
+  "main": "./src/index.ts",
+  "type": "module",
+  "devDependencies": {
+    "@repo/typescript-config": "workspace:*",
+    "@types/node": "^25.6.0"
+  },
+  "dependencies": {
+    "kafkajs": "^2.2.4"
+  }
+}

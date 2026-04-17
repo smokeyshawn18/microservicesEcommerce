@@ -1,9 +1,9 @@
 "use client";
 
 import ShippingForm from "@/components/ShippingForm";
+import StripePaymentForm from "@/components/StripePaymentForm";
 import useCartStore from "@/stores/cartStore";
 import { ShippingFormInputs } from "@repo/types";
-
 import { ArrowRight, Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -138,7 +138,7 @@ const CartPage = () => {
                       src={
                         (item.images as Record<string, string>)?.[
                           item.selectedColor
-                        ] || "Blue"
+                        ] || ""
                       }
                       alt={item.name}
                       fill
@@ -159,7 +159,9 @@ const CartPage = () => {
                         Color: {item.selectedColor}
                       </p>
                     </div>
-                    <p className="font-medium">${item.price.toFixed(2)}</p>
+                    <p className="font-medium">
+                      ${(item.price * item.quantity).toFixed(2)}
+                    </p>
                   </div>
                 </div>
                 {/* DELETE BUTTON */}
@@ -173,6 +175,8 @@ const CartPage = () => {
             ))
           ) : activeStep === 2 ? (
             <ShippingForm setShippingForm={setShippingForm} />
+          ) : activeStep === 3 && shippingForm ? (
+            <StripePaymentForm shippingForm={shippingForm} />
           ) : (
             <p className="text-sm text-gray-500">
               Please fill in the shipping form to continue.

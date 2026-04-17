@@ -95,7 +95,7 @@ const products: ProductsType = [
     updatedAt: new Date(),
   },
   {
-    id: 6,
+    id: 124,
     name: "Nike Air Max 270",
     shortDescription:
       "Lorem ipsum dolor sit amet consect adipisicing elit lorem ipsum dolor sit.",

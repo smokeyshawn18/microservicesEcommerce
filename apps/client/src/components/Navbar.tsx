@@ -8,15 +8,15 @@ import ProfileButton from "./ProfileButton";
 
 const Navbar = () => {
   return (
-    <nav className="w-full flex items-center justify-between border-b border-gray-200 pb-4">
+    <nav className="sticky top-4 z-50 w-full flex items-center justify-between border-b border-gray-200 bg-white py-4 px-4 md:px-6 shadow-sm">
       {/* LEFT */}
       <Link href="/" className="flex items-center">
         <Image
           src="/logo.png"
           alt="NepCart"
-          width={36}
-          height={36}
-          className="w-6 h-6 md:w-9 md:h-9"
+          width={40}
+          height={40}
+          className="w-7 h-7 md:w-10 md:h-10"
         />
         <p className="hidden md:block text-md font-medium tracking-wider">
           NepCart.

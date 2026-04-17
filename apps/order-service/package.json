@@ -17,6 +17,7 @@
     "@fastify/cors": "^8.5.0",
     "@repo/order-db": "workspace:*",
     "@repo/types": "workspace:*",
+    "@repo/kafka": "workspace:*",
     "cors": "^2.8.5",
     "fastify": "^5.8.4"
   },
