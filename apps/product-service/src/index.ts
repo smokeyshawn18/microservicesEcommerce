@@ -4,6 +4,7 @@ import { clerkMiddleware } from "@clerk/express";
 import { shouldBeUser } from "./middleware/authMiddleware.js";
 import productRouter from "./routes/product.route";
 import categoryRouter from "./routes/category.route";
+import { consumer, producer } from "./utils/kafka.js";
 
 const app = express();
 app.use(express.json()); // Middleware to parse JSON bodies
@@ -52,11 +53,13 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 const start = async () => {
   try {
+    Promise.all([await producer.connect(), await consumer.connect()]);
     app.listen(8000, () => {
       console.log("Product Service is running on port 8000");
     });
   } catch (error) {
     console.error("Error starting the server:", error);
+    process.exit(1);
   }
 };
 

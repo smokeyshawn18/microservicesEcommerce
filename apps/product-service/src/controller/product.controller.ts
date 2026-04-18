@@ -1,11 +1,13 @@
 import { Request, Response } from "express";
 import { prisma, Prisma } from "@repo/products-db";
 import { productSchema } from "../schema/productSchema";
+import { producer } from "../utils/kafka";
+import { StripeProductType } from "@repo/types";
 
 const updateProductSchema = productSchema.partial();
 
 export const createProduct = async (req: Request, res: Response) => {
-  // ✅ Validate input
+  // Validate input
   const result = productSchema.safeParse(req.body);
 
   if (!result.success) {
@@ -29,6 +31,15 @@ export const createProduct = async (req: Request, res: Response) => {
   const product = await prisma.product.create({
     data,
   });
+
+  const stripeProduct: StripeProductType = {
+    id: product.id.toString(),
+    name: product.name,
+
+    price: product.price,
+  };
+
+  producer.send("product.created", { value: stripeProduct });
 
   return res.status(201).json({
     success: true,
