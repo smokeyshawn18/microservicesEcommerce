@@ -1,8 +1,9 @@
 import { Request, Response } from "express";
 import { prisma, Prisma } from "@repo/products-db";
-import { productSchema } from "../schema/productSchema";
-import { producer } from "../utils/kafka";
-import { StripeProductType } from "@repo/types";
+
+import { productSchema } from "../schema/productSchema.js";
+import { producer } from "../utils/kafka.js";
+import type { StripeProductType } from "@repo/types";
 
 const updateProductSchema = productSchema.partial();
 

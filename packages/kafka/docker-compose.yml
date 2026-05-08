@@ -5,24 +5,23 @@ services:
     environment:
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
-
-      # ONLY EXTERNAL LISTENER
       KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9094,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9094
-
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka-broker-1:9094
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: EXTERNAL
-
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker-1:9093,2@kafka-broker-2:9093,3@kafka-broker-3:9093
       KAFKA_CLUSTER_ID: 7Dvn0OLMQo-bg4qmCmflVg
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
-
     ports:
       - "9094:9094"
-
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/localhost/9094'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
     networks:
-      - kafka-network
+      - nepcart-network
 
   kafka-broker-2:
     image: apache/kafka:3.7.0
@@ -30,23 +29,23 @@ services:
     environment:
       KAFKA_NODE_ID: 2
       KAFKA_PROCESS_ROLES: broker,controller
-
       KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9095,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9095
-
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka-broker-2:9095
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: EXTERNAL
-
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker-1:9093,2@kafka-broker-2:9093,3@kafka-broker-3:9093
       KAFKA_CLUSTER_ID: 7Dvn0OLMQo-bg4qmCmflVg
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
-
     ports:
       - "9095:9095"
-
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/localhost/9095'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
     networks:
-      - kafka-network
+      - nepcart-network
 
   kafka-broker-3:
     image: apache/kafka:3.7.0
@@ -54,44 +53,59 @@ services:
     environment:
       KAFKA_NODE_ID: 3
       KAFKA_PROCESS_ROLES: broker,controller
-
       KAFKA_LISTENERS: EXTERNAL://0.0.0.0:9096,CONTROLLER://:9093
-      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://localhost:9096
-
+      KAFKA_ADVERTISED_LISTENERS: EXTERNAL://kafka-broker-3:9096
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: EXTERNAL:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_INTER_BROKER_LISTENER_NAME: EXTERNAL
-
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka-broker-1:9093,2@kafka-broker-2:9093,3@kafka-broker-3:9093
       KAFKA_CLUSTER_ID: 7Dvn0OLMQo-bg4qmCmflVg
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
-
     ports:
       - "9096:9096"
-
+    healthcheck:
+      test: ["CMD-SHELL", "bash -lc 'exec 3<>/dev/tcp/localhost/9096'"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
     networks:
-      - kafka-network
+      - nepcart-network
 
   kafka-ui:
     image: provectuslabs/kafka-ui:latest
     container_name: kafka-ui
     environment:
       KAFKA_CLUSTERS_0_NAME: local-cluster
-
-      # IMPORTANT: use EXTERNAL endpoints
-      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: localhost:9094,localhost:9095,localhost:9096
-
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-1:9094,kafka-broker-2:9095,kafka-broker-3:9096
     ports:
       - "8080:8080"
-
     depends_on:
       - kafka-broker-1
       - kafka-broker-2
       - kafka-broker-3
-
     networks:
-      - kafka-network
+      - nepcart-network
+
+  product-service:
+    image: product-service
+    container_name: product-service
+    build:
+      context: ../..
+      dockerfile: apps/product-service/Dockerfile
+    env_file:
+      - ../../apps/product-service/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      kafka-broker-1:
+        condition: service_healthy
+      kafka-broker-2:
+        condition: service_healthy
+      kafka-broker-3:
+        condition: service_healthy
+    networks:
+      - nepcart-network
 
 networks:
-  kafka-network:
+  nepcart-network:
     driver: bridge

@@ -1,11 +1,14 @@
 {
   "name": "@repo/products-db",
   "version": "0.0.1",
+  "main": "dist/index.js",
   "type": "module",
   "scripts": {
     "db:generate": "prisma generate",
     "db:migrate": "prisma migrate dev --skip-generate",
-    "db:deploy": "prisma migrate deploy"
+    "db:deploy": "prisma migrate deploy",
+    "build": "tsc -p tsconfig.json",
+    "check-types": "tsc --noEmit"
   },
   "devDependencies": {
     "@repo/typescript-config": "workspace:*",
@@ -17,6 +20,9 @@
     "dotenv": "^17.4.1"
   },
   "exports": {
-    ".": "./src/index.ts"
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
   }
 }

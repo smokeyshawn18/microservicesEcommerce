@@ -1,5 +1,5 @@
 import { getAuth } from "@clerk/express";
-import { CustomJWTClaims } from "@repo/types";
+import type { CustomJWTClaims } from "@repo/types";
 import { NextFunction, Request, Response } from "express";
 
 declare global {

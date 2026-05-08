@@ -2,8 +2,8 @@ import express, { NextFunction, Request, Response } from "express";
 import cors from "cors";
 import { clerkMiddleware } from "@clerk/express";
 import { shouldBeUser } from "./middleware/authMiddleware.js";
-import productRouter from "./routes/product.route";
-import categoryRouter from "./routes/category.route";
+import productRouter from "./routes/product.route.js";
+import categoryRouter from "./routes/category.route.js";
 import { consumer, producer } from "./utils/kafka.js";
 
 const app = express();
@@ -53,7 +53,7 @@ app.use((err: any, req: Request, res: Response, next: NextFunction) => {
 
 const start = async () => {
   try {
-    Promise.all([await producer.connect(), await consumer.connect()]);
+    await Promise.all([producer.connect(), consumer.connect()]);
     app.listen(8000, () => {
       console.log("Product Service is running on port 8000");
     });

@@ -4,8 +4,8 @@ import {
   deleteCategory,
   getCategories,
   updateCategory,
-} from "../controller/category.controller";
-import { shouldBeAdmin } from "../middleware/authMiddleware";
+} from "../controller/category.controller.js";
+import { shouldBeAdmin } from "../middleware/authMiddleware.js";
 
 const router: Router = Router();
 
